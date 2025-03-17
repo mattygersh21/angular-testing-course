@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { CoursesService } from "./courses.service";
 import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
-import { COURSES } from "../../../../server/db-data";
+import { COURSES, findLessonsForCourse } from "../../../../server/db-data";
 import { Course } from "../model/course";
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -75,6 +75,26 @@ describe("CoursesService", () => {
         const req = httpTestingController.expectOne(`/api/courses/${courseId}`);
         expect(req.request.method).toEqual('PUT');
         req.flush('Save course failed', {status: 500, statusText: 'Internal Server Error'});
+    });
+
+    it('should find a list of lessons', () => {
+        const courseId: number = 12;
+        coursesService.findLessons(courseId).
+            subscribe(lessons => {
+                expect(lessons).toBeTruthy();
+                expect(lessons.length).toBe(3);
+            });
+        // included a predicate function in the expectOne method to filter the request based on the url. this is because the findLessons method constructs the url with query parameters
+        const req = httpTestingController.expectOne(req => req.url == '/api/lessons');
+        expect(req.request.method).toEqual('GET');
+        expect(req.request.params.get('courseId')).toEqual(courseId.toString());
+        expect(req.request.params.get('filter')).toEqual('');
+        expect(req.request.params.get('sortOrder')).toEqual('asc');
+        expect(req.request.params.get('pageNumber')).toEqual('0');
+        expect(req.request.params.get('pageSize')).toEqual('3');
+        req.flush({
+            payload: findLessonsForCourse(courseId).slice(0, 3)
+        });
     });
 
     afterEach(() => {
