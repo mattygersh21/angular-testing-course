@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { CoursesService } from "./courses.service";
 import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 import { COURSES } from "../../../../server/db-data";
+import { Course } from "../model/course";
 
 describe("CoursesService", () => {
 
@@ -41,6 +42,23 @@ describe("CoursesService", () => {
         const req = httpTestingController.expectOne('/api/courses/12');
         expect(req.request.method).toEqual('GET');
         req.flush(COURSES[12]);
+    });
+
+    it('should save the course data', () => {
+        const changes: Partial<Course> = {titles: {description: 'Testing Course'}};
+        const courseId: number = 12;
+        coursesService.saveCourse(courseId, changes).
+            subscribe(course => {
+                expect(course.id).toBe(courseId);
+            });
+        const req = httpTestingController.expectOne(`/api/courses/${courseId}`);
+        expect(req.request.method).toEqual('PUT');
+        expect(req.request.body.titles.description).toEqual(changes.titles.description);
+        // simulates a response from the backend. it merges the existing course data with the changes object. the updated course data is then returned to the subscribe method
+        req.flush({
+            ...COURSES[courseId],
+            ...changes
+        });
     });
 
     afterEach(() => {
