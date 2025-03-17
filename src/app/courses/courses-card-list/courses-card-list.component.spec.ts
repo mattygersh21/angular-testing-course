@@ -12,7 +12,9 @@ describe('CoursesCardListComponent', () => {
 
   let component: CoursesCardListComponent;
   let fixture: ComponentFixture<CoursesCardListComponent>;
+  let el: DebugElement;
 
+  // the waitForAsync does just what the name suggests as it waits for the async beforeEach to complete before running the tests
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -23,19 +25,23 @@ describe('CoursesCardListComponent', () => {
       .then(() => {
         fixture = TestBed.createComponent(CoursesCardListComponent);
         component = fixture.componentInstance;
+        el = fixture.debugElement;
       });
   }));
 
   it("should create the component", () => {
     expect(component).toBeTruthy();
-    console.log(component);
   });
 
 
   it("should display the course list", () => {
-
-    pending();
-
+    component.courses = setupCourses();
+    // the detectChanges() method is called to trigger the change detection cycle. it functions synchonously. without it, the updated courses data will not be rendered in the template and the test expect(cards.length) test will fail
+    fixture.detectChanges();
+    console.log(el.nativeElement.outerHTML);
+    const cards = el.queryAll(By.css(".course-card"));
+    expect(cards).toBeTruthy("Could not find cards");
+    expect(cards.length).toBe(12, "Unexpected number of courses");
   });
 
 
