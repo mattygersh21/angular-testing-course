@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, flush, flushMicrotasks, TestBed, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, flush, flushMicrotasks, TestBed, waitForAsync } from '@angular/core/testing';
 import { CoursesModule } from '../courses.module';
 import { DebugElement } from '@angular/core';
 
@@ -79,51 +79,19 @@ describe('HomeComponent', () => {
   });
 
 
-  it("should display advanced courses when tab clicked - fakeAsync", fakeAsync(() => {
+  it("should display advanced courses when tab clicked", (done:DoneFn) => {
     coursesService.findAllCourses.and.returnValue(of(setupCourses()));
     fixture.detectChanges();
     const tabs = el.queryAll(By.css(".mdc-tab"));
     click(tabs[1]);
     fixture.detectChanges();
-    flush();
-    const cardTitles = el.queryAll(By.css(".mat-mdc-card-title"));
-    expect(cardTitles.length).toBeGreaterThan(0, 'Could not find any card titles');
-    expect(cardTitles[0].nativeElement.textContent).toContain("Angular Testing Course");
-  }));
-
-  it("should display advanced courses when tab clicked - waitForAsync", waitForAsync(() => {
-    coursesService.findAllCourses.and.returnValue(of(setupCourses()));
-    fixture.detectChanges();
-    const tabs = el.queryAll(By.css(".mdc-tab"));
-    click(tabs[1]);
-    fixture.detectChanges();
-    fixture.whenStable().then(() => {
+    setTimeout(() => {
       const cardTitles = el.queryAll(By.css(".mat-mdc-card-title"));
       expect(cardTitles.length).toBeGreaterThan(0, 'Could not find any card titles');
       expect(cardTitles[0].nativeElement.textContent).toContain("Angular Testing Course");
-    });
-  }));
-
-  // it('asynchronous test example - setTimeout()', fakeAsync(() => {
-  //   let test = false;
-  //   setTimeout(() => {
-  //     console.log('running assertions setTimeout');
-  //     test = true;
-  //   }, 1000);
-  //   flush();
-  //   expect(test).toBeTruthy();
-  // }));
-
-  // it('asynchronous test exqample = plain promise', () => {
-  //   let test = false;
-  //   console.log('creating promise');
-  //   Promise.resolve().then(() => {
-  //     console.log('promise evaluated');
-  //     test = true;
-  //   });
-  //   console.log('running test assertions');
-  //   expect(test).toBeTruthy();
-  // })
+      done();
+    },500);
+  });
 
 });
 
